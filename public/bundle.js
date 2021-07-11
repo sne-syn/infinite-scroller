@@ -3,78 +3,62 @@ var __webpack_exports__ = {};
 /*!*********************!*\
   !*** ./src/main.js ***!
   \*********************/
-let count = 5;
+const PHOTOS_COUNT = 10;
 const API_KEY = "0sxPS6oS9ZwnBroHlHoq2XZJX_4Rjt7a5aVMdSD1gcc";
-const API_URL = `https://api.unsplash.com/photos/random/?client_id=${API_KEY}&count=${count}`;
+const API_URL = `https://api.unsplash.com/photos/random/?client_id=${API_KEY}&count=${PHOTOS_COUNT}`;
 
-let ready = false;
-let imagesLoaded = 0;
-let totalImages = 0;
-let photosArray = [];
+let photosCollection = [];
+let isLoaded = false;
 
-const setAttributes = (element, attributes) => {
+const setAttributes = (item, attributes) => {
   for (const key in attributes) {
-    element.setAttribute(key, attributes[key]);
+    item.setAttribute(key, attributes[key]);
   }
 }
 
-const imageLoaded = () => {
+const getPhotosFromApi = async () => {
   const loader = document.querySelector('.loader');
-  imagesLoaded++;
-  ready = imagesLoaded === totalImages ? true : false;
-  loader.hidden = true;
-  count = 30;
-};
+  try {
+    const response = await fetch(API_URL);
+    photosCollection = await response.json();
+    displayImages(photosCollection);
+    isLoaded = true;
+    loader.hidden = true;
+  } catch (error) {
+    alert( "Our apologies, the data has errors. We will try to fix it as soon as possible" );
+  }
+}
 
-const displayPhotos = () => {
-  const imageContainer = document.querySelector('.image-container');
-
-  totalImages = photosArray.length;
-  imagesLoaded = 0;
-
-  photosArray.forEach(photo => {
-    // Create <a> to link to Unsplash
+const displayImages = (data) => {
+  const container = document.querySelector('.image-container');
+  data.forEach(element => {
     const imageLink = document.createElement('a');
     setAttributes(imageLink, {
-      href: photo.urls.regular,
+      href: element.urls.regular,
       target: '_blank',
       rel: 'noreferrer'
     })
 
-    // Create <img> for photo
-    const image = document.createElement('img');
-    setAttributes(image, {
-      src: photo.urls.regular,
-      alt: photo.alt_description,
-      title: photo.alt_description
+    const img = document.createElement('img');
+    setAttributes(img, {
+      src: element.urls.regular,
+      alt: element.alt_description,
+      title: element.alt_description
     })
 
-    image.addEventListener('load', imageLoaded);
-    // Append created elements to the DOM
-    imageLink.appendChild(image);
-    imageContainer.appendChild(imageLink);
-  });
-};
-
-const getPhotos = async () => {
-  try {
-    const response = await fetch(API_URL);
-    photosArray = await response.json();
-    displayPhotos();
-  } catch (error) {
-    // Catch Error Here
-  }
-};
+    imageLink.appendChild(img);
+    container.appendChild(imageLink);
+  })
+}
 
 window.addEventListener('scroll', () => {
-  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 1000 && ready) {
-    ready = false;
-    getPhotos();
+  if (window.scrollY + window.innerHeight / 2 >= document.body.clientHeight && isLoaded) {
+    getPhotosFromApi();
+    isLoaded = false;
   }
-});
+})
 
-getPhotos();
-
+getPhotosFromApi()
 
 /******/ })()
 ;
