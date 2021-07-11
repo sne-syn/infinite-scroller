@@ -52,13 +52,14 @@ const displayImages = (data) => {
 }
 
 window.addEventListener('scroll', () => {
-  if (window.scrollY + window.innerHeight / 2 >= document.body.clientHeight && isLoaded) {
+  if (window.scrollY + window.innerHeight >= document.body.clientHeight && isLoaded) {
     getPhotosFromApi();
     isLoaded = false;
   }
 })
 
 getPhotosFromApi()
+
 
 /******/ })()
 ;
